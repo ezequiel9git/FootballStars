@@ -1,0 +1,54 @@
+// src/data/diceRules.js
+
+import { cardTypes } from './cards';
+
+export const diceRules = {
+  [cardTypes.DELANTERO_ESTRELLA]: {
+    1: 'PIERDE_TURNO_DEFENSA_NORMAL_RIVAL',
+    2: cardTypes.CENTROCAMPISTA_ESTRELLA,
+    3: cardTypes.DELANTERO_NORMAL,
+    4: 'REPETIR_TIRO',
+    5: 'GOL',
+    6: 'GOL',
+  },
+  [cardTypes.DELANTERO_NORMAL]: {
+    1: 'PIERDE_TURNO_DEFENSA_NORMAL_RIVAL',
+    2: cardTypes.CENTROCAMPISTA_NORMAL,
+    3: cardTypes.CENTROCAMPISTA_ESTRELLA,
+    4: cardTypes.DELANTERO_ESTRELLA,
+    5: 'REPETIR_TIRO',
+    6: 'GOL',
+  },
+  [cardTypes.CENTROCAMPISTA_ESTRELLA]: {
+    1: 'PIERDE_TURNO_CENTRO_NORMAL_RIVAL',
+    2: cardTypes.DEFENSA_ESTRELLA,
+    3: cardTypes.CENTROCAMPISTA_NORMAL,
+    4: cardTypes.DELANTERO_NORMAL,
+    5: cardTypes.DELANTERO_ESTRELLA,
+    6: 'REPETIR_TIRO',
+  },
+  [cardTypes.CENTROCAMPISTA_NORMAL]: {
+    1: 'PIERDE_TURNO_CENTRO_NORMAL_RIVAL',
+    2: cardTypes.DEFENSA_NORMAL,
+    3: cardTypes.DEFENSA_ESTRELLA,
+    4: 'REPETIR_TIRO',
+    5: cardTypes.CENTROCAMPISTA_ESTRELLA,
+    6: cardTypes.DELANTERO_NORMAL,
+  },
+  [cardTypes.DEFENSA_ESTRELLA]: {
+    1: 'PIERDE_TURNO_DELANTERO_NORMAL_RIVAL',
+    2: cardTypes.DEFENSA_NORMAL,
+    3: cardTypes.DEFENSA_NORMAL,
+    4: cardTypes.CENTROCAMPISTA_NORMAL,
+    5: cardTypes.CENTROCAMPISTA_NORMAL,
+    6: cardTypes.CENTROCAMPISTA_ESTRELLA,
+  },
+  [cardTypes.DEFENSA_NORMAL]: {
+    1: 'PIERDE_TURNO_DELANTERO_NORMAL_RIVAL',
+    2: 'PIERDE_TURNO_DEFENSA_NORMAL_RIVAL',
+    3: 'REPETIR_TIRO',
+    4: cardTypes.DEFENSA_ESTRELLA,
+    5: cardTypes.CENTROCAMPISTA_NORMAL,
+    6: cardTypes.CENTROCAMPISTA_ESTRELLA,
+  },
+};
