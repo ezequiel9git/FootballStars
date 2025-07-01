@@ -4,19 +4,19 @@ import { useGame } from "../context/GameContext";
 export default function GameBoard() {
   const { state, dispatch } = useGame();
 
-  function getCardImage(card, team) {
-    const teamSuffix = team === "teamA" ? "A" : "B";
+  function getCardImage(card, teamKey) {
+  const team = state.selectedTeams[teamKey];
+  const key = card
+    .replace("Delantero", "DC")
+    .replace("Centrocampista", "MD")
+    .replace("Defensa", "DF")
+    .replace(" Estrella", "S")
+    .replace(" Normal", "")
+    .toUpperCase();
 
-    const key = card
-      .replace("Delantero", "DC")
-      .replace("Centrocampista", "MD")
-      .replace("Defensa", "DF")
-      .replace(" Estrella", "S")
-      .replace(" Normal", "")
-      .toUpperCase();
+  return `/cards/${key}_${team}.png`;
+}
 
-    return `/cards/${key}_${teamSuffix}.png`;
-  }
 
   function handleRoll() {
     if (state.rolling || state.gameOver) return;

@@ -20,6 +20,10 @@ const initialState = {
   message: "Empieza el partido: Centrocampista Normal de Team A",
   dice: null,
   rolling: false,
+  selectedTeams: {
+    teamA: null,
+    teamB: null,
+  },
 };
 
 function applyDiceResult(state) {
@@ -94,7 +98,26 @@ function gameReducer(state, action) {
       };
 
     case "RESET":
-      return { ...initialState };
+      return {
+        ...initialState,
+        selectedTeams: state.selectedTeams, // conservar equipos seleccionados
+      };
+
+    case "SET_TEAMS":
+      return {
+        ...state,
+        selectedTeams: {
+          teamA: action.payload.teamA,
+          teamB: action.payload.teamB,
+        },
+        gameOver: false,
+        history: [],
+        goals: { teamA: 0, teamB: 0 },
+        possession: "teamA",
+        currentPlayer: "teamA",
+        currentCard: cardTypes.CENTROCAMPISTA_NORMAL,
+        message: `Comienza el partido: ${action.payload.teamA} vs ${action.payload.teamB}`,
+      };
 
     default:
       return state;
