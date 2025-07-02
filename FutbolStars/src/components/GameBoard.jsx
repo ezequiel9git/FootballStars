@@ -4,19 +4,26 @@ import { useGame } from "../context/GameContext";
 export default function GameBoard() {
   const { state, dispatch } = useGame();
 
+  const { teamA, teamB } = state.selectedTeams;
+
   function getCardImage(card, teamKey) {
-  const team = state.selectedTeams[teamKey];
-  const key = card
-    .replace("Delantero", "DC")
-    .replace("Centrocampista", "MD")
-    .replace("Defensa", "DF")
-    .replace(" Estrella", "S")
-    .replace(" Normal", "")
-    .toUpperCase();
+    const teamName = state.selectedTeams[teamKey];
+    if (!teamName) return "";
 
-  return `/cards/${key}_${team}.png`;
-}
+    const key = card
+      .replace("Delantero", "DC")
+      .replace("Centrocampista", "MD")
+      .replace("Defensa", "DF")
+      .replace(" Estrella", "S")
+      .replace(" Normal", "")
+      .toUpperCase();
 
+    return `/cards/${key}_${teamName}.png`;
+  }
+
+  function getShield(teamName) {
+    return `/shields/Escudo_${teamName}.png`;
+  }
 
   function handleRoll() {
     if (state.rolling || state.gameOver) return;
@@ -28,20 +35,34 @@ export default function GameBoard() {
     }, 1000);
   }
 
+  if (!teamA || !teamB) {
+    return (
+      <div className="text-center text-xl font-bold mt-10 text-red-600">
+        🚨 Por favor selecciona los equipos antes de comenzar el juego.
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto mt-10 p-6 bg-white shadow rounded-2xl space-y-6 text-center">
       <h1 className="text-3xl font-bold">⚽ Football Stars ⚽</h1>
 
-      {/* Marcador */}
-      <div className="flex justify-around text-xl font-semibold">
-        <span>Crystal FC: {state.goals.teamA} 🟦</span>
-        <span>Dark FC: {state.goals.teamB} 🟥</span>
+      {/* Marcador con escudos */}
+      <div className="flex justify-around items-center text-xl font-semibold">
+        <div className="flex items-center space-x-2">
+          <img src={getShield(teamA)} alt={teamA} className="w-10 h-10" />
+          <span>{teamA}: {state.goals.teamA} 🟦</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span>{teamB}: {state.goals.teamB} 🟥</span>
+          <img src={getShield(teamB)} alt={teamB} className="w-10 h-10" />
+        </div>
       </div>
 
       {/* Jugador actual y su carta */}
       <div className="p-4 bg-gray-100 rounded-xl flex flex-col items-center">
         <p className="text-lg mb-2">
-          Turno de <strong>{state.possession.toUpperCase()}</strong>
+          Turno de <strong>{state.selectedTeams[state.possession]}</strong>
         </p>
         <p className="text-xl mb-4">
           Jugador actual: <strong>{state.currentCard}</strong>
