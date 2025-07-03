@@ -1,50 +1,72 @@
-// src/components/GameBoard.jsx
 import React, { useContext, useState } from "react";
 import { GameContext } from "../context/GameContext.jsx";
-import { cardTypes, cardLabels } from "../data/cards.js";
+import { cardLabels } from "../data/cards.js";
 import { players } from "../context/players.js";
 import { diceRules } from "../data/diceRules";
-
 
 function GameBoard() {
   const { state, dispatch } = useContext(GameContext);
   const [diceResult, setDiceResult] = useState(null);
   const [rolling, setRolling] = useState(false);
 
-  const handleCardClick = (card) => {
-    // El clic en carta ya no lanza el dado directamente
-    dispatch({ type: "SELECT_CARD", payload: { card } });
-  };
-
   const handleRollDice = () => {
-    if (!state.selectedCard) {
-      alert("Selecciona primero una carta para tirar el dado.");
-      return;
-    }
+    if (!state.currentPlayer || state.gameOver) return;
 
     setRolling(true);
     setDiceResult(null);
 
-    // Simula la animación
     setTimeout(() => {
       const roll = Math.floor(Math.random() * 6) + 1;
       setDiceResult(roll);
       setRolling(false);
 
-      const card = state.selectedCard;
-      const result = diceRules[card]?.[roll];
+      const { team, role } = state.currentPlayer;
+      const teamName = state.selectedTeams[team];
+      const playerName = players[teamName]?.[role] ?? "Jugador desconocido";
+      const rule = diceRules?.[role]?.[roll];
 
-      dispatch({ type: "PROCESS_DICE_RESULT", payload: { roll, result } });
+      let message = `⚽ ${playerName} lanza el dado: ${roll}. `;
+      if (!rule) {
+        message += "Acción indefinida.";
+      } else {
+        switch (rule.action) {
+          case "GOL":
+            message += "¡GOOOOL!";
+            break;
+          case "PASA":
+            const nextPlayerName =
+              players[state.selectedTeams[rule.otherTeam ? getOppositeTeam(team) : team]]?.[rule.next] ?? "Jugador desconocido";
+            message += `Pasa el balón a ${nextPlayerName}.`;
+            break;
+          case "PIERDE_TURNO":
+            message += "Pierde el turno.";
+            break;
+          case "TIRA_DE_NUEVO":
+            message += "Vuelve a tirar.";
+            break;
+          default:
+            message += "Acción indefinida.";
+        }
+      }
+
+      dispatch({
+        type: "PROCESS_DICE_RESULT",
+        payload: {
+          roll,
+          rule,
+          logEntry: message,
+        },
+      });
     }, 1000);
   };
 
   const cardsToRender = [
-    cardTypes.DELANTERO_NORMAL,
-    cardTypes.DELANTERO_ESTRELLA,
-    cardTypes.CENTROCAMPISTA_NORMAL,
-    cardTypes.CENTROCAMPISTA_ESTRELLA,
-    cardTypes.DEFENSA_NORMAL,
-    cardTypes.DEFENSA_ESTRELLA,
+    "DELANTERO_NORMAL",
+    "DELANTERO_ESTRELLA",
+    "CENTROCAMPISTA_NORMAL",
+    "CENTROCAMPISTA_ESTRELLA",
+    "DEFENSA_NORMAL",
+    "DEFENSA_ESTRELLA",
   ];
 
   function getCardImage(card, teamKey) {
@@ -52,12 +74,12 @@ function GameBoard() {
     if (!teamName) return "";
 
     const cardMap = {
-      [cardTypes.DELANTERO_NORMAL]: "DC",
-      [cardTypes.DELANTERO_ESTRELLA]: "DCS",
-      [cardTypes.CENTROCAMPISTA_NORMAL]: "MD",
-      [cardTypes.CENTROCAMPISTA_ESTRELLA]: "MDS",
-      [cardTypes.DEFENSA_NORMAL]: "DF",
-      [cardTypes.DEFENSA_ESTRELLA]: "DFS",
+      DELANTERO_NORMAL: "DC",
+      DELANTERO_ESTRELLA: "DCS",
+      CENTROCAMPISTA_NORMAL: "MD",
+      CENTROCAMPISTA_ESTRELLA: "MDS",
+      DEFENSA_NORMAL: "DF",
+      DEFENSA_ESTRELLA: "DFS",
     };
 
     const cardCode = cardMap[card] ?? "UNKNOWN";
@@ -69,6 +91,14 @@ function GameBoard() {
     const teamName = state.selectedTeams[teamKey];
     return players[teamName]?.[card] ?? "Jugador desconocido";
   }
+
+  function getOppositeTeam(team) {
+    return team === "teamA" ? "teamB" : "teamA";
+  }
+
+  const activePlayer =
+    state.currentPlayer &&
+    players[state.selectedTeams[state.currentPlayer.team]]?.[state.currentPlayer.role];
 
   return (
     <div className="max-w-6xl mx-auto mt-8 px-4">
@@ -84,7 +114,9 @@ function GameBoard() {
         </div>
 
         <div className="text-center">
-          <p className="text-4xl font-bold text-green-600">0 - 0</p>
+          <p className="text-4xl font-bold text-green-600">
+            {state.score.teamA} - {state.score.teamB}
+          </p>
           <p className="text-sm text-gray-600 mt-1">Marcador</p>
         </div>
 
@@ -98,8 +130,11 @@ function GameBoard() {
         </div>
       </div>
 
-      {/* Dado + Mensaje */}
-      <div className="flex items-center justify-center gap-6 mb-6">
+      {/* Turno actual + Dado */}
+      <div className="flex items-center justify-center gap-6 mb-6 flex-col">
+        <p className="text-lg font-semibold text-center text-gray-700">
+          Turno de: {activePlayer ?? "Desconocido"}
+        </p>
         <img
           src={
             rolling
@@ -128,11 +163,13 @@ function GameBoard() {
               <img
                 src={getCardImage(card, "teamA")}
                 alt={card}
-                className="w-24 cursor-pointer hover:scale-105 transition-transform"
-                onClick={() => handleCardClick(card)}
+                className="w-24"
               />
               <p className="text-xs text-gray-500">
                 {cardLabels[card]}
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {getPlayerName(card, "teamA")}
               </p>
             </div>
           ))}
@@ -150,10 +187,12 @@ function GameBoard() {
               <img
                 src={getCardImage(card, "teamB")}
                 alt={card}
-                className="w-24 cursor-pointer hover:scale-105 transition-transform"
-                onClick={() => handleCardClick(card)}
+                className="w-24"
               />
-              <p className="mt-2 text-sm font-medium">
+              <p className="text-xs text-gray-500">
+                {cardLabels[card]}
+              </p>
+              <p className="mt-1 text-sm font-medium">
                 {getPlayerName(card, "teamB")}
               </p>
             </div>
