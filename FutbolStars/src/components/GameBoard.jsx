@@ -1,9 +1,9 @@
-// GameBoard.jsx
+// src/components/GameBoard.jsx
 import React, { useContext } from "react";
 import { GameContext, cardTypes } from "../context/GameContext.jsx";
 import { players } from "../context/players.js";
 
-export const GameBoard = () => {
+function GameBoard() {
   const { state, dispatch } = useContext(GameContext);
 
   const handleCardClick = (card) => {
@@ -24,8 +24,7 @@ export const GameBoard = () => {
     };
 
     const cardCode = cardMap[card] ?? "UNKNOWN";
-
-    const sanitizedTeamName = encodeURIComponent(teamName); // evita espacios rotos
+    const sanitizedTeamName = encodeURIComponent(teamName);
     return `/cards/${sanitizedTeamName}_${cardCode}.png`;
   }
 
@@ -86,4 +85,6 @@ export const GameBoard = () => {
       </div>
     </div>
   );
-};
+}
+
+export default GameBoard;
