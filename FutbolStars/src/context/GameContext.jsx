@@ -1,18 +1,10 @@
-// GameContext.js
-import React, { createContext, useReducer, useContext } from "react"; 
+// src/context/GameContext.jsx
+import React, { createContext, useReducer, useContext } from "react";
 import { players } from "./players.js";
-
+import { cardTypes } from "../data/cards.js";
+import { diceRules } from "../data/diceRules.js";
 
 export const GameContext = createContext();
-
-export const cardTypes = {
-  DELANTERO_NORMAL: "DELANTERO_NORMAL",
-  DELANTERO_ESTRELLA: "DELANTERO_ESTRELLA",
-  CENTROCAMPISTA_NORMAL: "CENTROCAMPISTA_NORMAL",
-  CENTROCAMPISTA_ESTRELLA: "CENTROCAMPISTA_ESTRELLA",
-  DEFENSA_NORMAL: "DEFENSA_NORMAL",
-  DEFENSA_ESTRELLA: "DEFENSA_ESTRELLA",
-};
 
 const initialState = {
   currentTurn: "teamA",
@@ -24,9 +16,15 @@ const initialState = {
     teamA: "",
     teamB: "",
   },
+  selectedCard: null,
   log: [],
   ballPossession: "teamA",
   message: "Empieza el partido",
+  diceResult: null,
+  score: {
+    teamA: 0,
+    teamB: 0,
+  },
 };
 
 function getPlayerName(cardType, teamKey, state) {
@@ -42,26 +40,72 @@ function reducer(state, action) {
         selectedTeams: action.payload,
         message: `Empieza el partido: Centrocampista Normal de ${action.payload.teamA}`,
       };
-    case "PLAY_CARD": {
-      const card = action.payload.card;
-      const team = state.ballPossession;
 
-      const playerName = getPlayerName(card, team, state);
-      const newLog = [...state.log, `Pasa el balón a ${playerName}`];
+    case "SELECT_CARD":
+      return {
+        ...state,
+        selectedCard: action.payload,
+        message: `Seleccionado: ${getPlayerName(action.payload, state.ballPossession, state)}`,
+      };
+
+    case "ROLL_DICE":
+      return {
+        ...state,
+        diceResult: action.payload,
+      };
+
+    case "PROCESS_DICE_RESULT": {
+      const { selectedCard, ballPossession, diceResult } = state;
+      const opponent = ballPossession === "teamA" ? "teamB" : "teamA";
+      const result = diceRules[selectedCard]?.[diceResult];
+
+      let newLog = [...state.log, `⚽ ${getPlayerName(selectedCard, ballPossession, state)} lanza el dado: ${diceResult}`];
+      let message = "";
+      let nextTurn = opponent;
+      let score = { ...state.score };
+
+      switch (result) {
+        case "GOL":
+          score[ballPossession] += 1;
+          message = `¡GOOOOOL de ${getPlayerName(selectedCard, ballPossession, state)}!`;
+          newLog.push(message);
+          break;
+        case "REPETIR_TIRO":
+          message = `${getPlayerName(selectedCard, ballPossession, state)} repite turno`;
+          newLog.push(message);
+          nextTurn = ballPossession;
+          break;
+        case "PIERDE_TURNO_DEFENSA_NORMAL_RIVAL":
+        case "PIERDE_TURNO_DELANTERO_NORMAL_RIVAL":
+        case "PIERDE_TURNO_CENTRO_NORMAL_RIVAL":
+          message = `¡${opponent} pierde el turno!`;
+          newLog.push(message);
+          nextTurn = ballPossession;
+          break;
+        default:
+          if (Object.values(cardTypes).includes(result)) {
+            const targetName = getPlayerName(result, ballPossession, state);
+            message = `Pasa a ${targetName}`;
+            newLog.push(message);
+          } else {
+            message = "Acción indefinida";
+            newLog.push(message);
+          }
+          break;
+      }
 
       return {
         ...state,
+        message,
         log: newLog,
-        currentTurn: team === "teamA" ? "teamB" : "teamA",
-        ballPossession: team === "teamA" ? "teamB" : "teamA",
-        message: `Turno de ${team === "teamA" ? "teamB" : "teamA"}`,
+        currentTurn: nextTurn,
+        ballPossession: nextTurn,
+        selectedCard: null,
+        diceResult: null,
+        score,
       };
     }
-    case "ADD_GOAL":
-      return {
-        ...state,
-        log: [...state.log, "¡GOOOOOOL!"],
-      };
+
     default:
       return state;
   }

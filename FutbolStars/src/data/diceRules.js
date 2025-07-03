@@ -1,6 +1,7 @@
 // src/data/diceRules.js
 
-import { cardTypes } from './cards';
+import { cardTypes } from "../data/cards.js";
+
 
 export const diceRules = {
   [cardTypes.DELANTERO_ESTRELLA]: {

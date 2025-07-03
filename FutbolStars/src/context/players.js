@@ -1,4 +1,4 @@
-// src/data/players.js
+// src/context/players.js
 
 export const players = {
   "Real Madrid CF": {
