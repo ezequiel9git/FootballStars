@@ -3,11 +3,13 @@ import { GameContext } from "../context/GameContext.jsx";
 import { cardLabels } from "../data/cards.js";
 import { players } from "../context/players.js";
 import { diceRules } from "../data/diceRules";
+import ConfettiBurst from "./ConfettiBurst";
 
 function GameBoard() {
   const { state, dispatch } = useContext(GameContext);
   const [diceResult, setDiceResult] = useState(null);
   const [rolling, setRolling] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const handleRollDice = () => {
     if (!state.currentPlayer || state.gameOver) return;
@@ -26,12 +28,14 @@ function GameBoard() {
       const rule = diceRules?.[role]?.[roll];
 
       let message = `⚽ ${playerName} lanza el dado: ${roll}. `;
+      let isGoal = false;
       if (!rule) {
         message += "Acción indefinida.";
       } else {
         switch (rule.action) {
           case "GOL":
             message += "¡GOOOOL!";
+            isGoal = true;
             break;
           case "PASA":
             const nextPlayerName =
@@ -47,6 +51,12 @@ function GameBoard() {
           default:
             message += "Acción indefinida.";
         }
+      }
+
+      // Mostrar confeti si es gol
+      if (isGoal) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 1200);
       }
 
       dispatch({
@@ -98,6 +108,7 @@ function GameBoard() {
 
   return (
     <div className="bg-futbol bg-cover bg-center min-h-screen">
+      <ConfettiBurst show={showConfetti} />
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
         {/* 🔢 Marcador */}
         <div className="flex justify-between items-center bg-blue-100 rounded-2xl shadow-lg p-6">
@@ -113,7 +124,7 @@ function GameBoard() {
           </div>
 
           <div className="text-center">
-            <p className="text-5xl font-extrabold text-green-800">
+            <p className="text-5xl font-extrabold text-blue-800">
               {state.score.teamA} - {state.score.teamB}
             </p>
             <p className="text-sm mt-1 text-gray-700 uppercase tracking-wide">Marcador</p>

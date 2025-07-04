@@ -6,3 +6,10 @@
 .bg-fondo {
   background-image: url('/Fondo1.jpg');
 }
+
+@keyframes confetti-fall {
+  to {
+    transform: translateY(400px) rotate(360deg);
+    opacity: 0;
+  }
+}
