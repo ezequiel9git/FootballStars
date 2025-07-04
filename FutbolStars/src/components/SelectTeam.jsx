@@ -37,7 +37,7 @@ export default function SelectTeam() {
       <div className="grid grid-cols-2 gap-6 items-center justify-center">
         {/* Selección Team A */}
         <div>
-          <h3 className="text-xl font-semibold mb-2">Equipo A</h3>
+          <h3 className="text-xl font-semibold mb-2">Equipo Local</h3>
           <select
             value={teamA}
             onChange={(e) => setTeamA(e.target.value)}
@@ -61,7 +61,7 @@ export default function SelectTeam() {
 
         {/* Selección Team B */}
         <div>
-          <h3 className="text-xl font-semibold mb-2">Equipo B</h3>
+          <h3 className="text-xl font-semibold mb-2">Equipo Visitante</h3>
           <select
             value={teamB}
             onChange={(e) => setTeamB(e.target.value)}

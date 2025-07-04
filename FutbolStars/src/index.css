@@ -3,3 +3,6 @@
 @tailwind utilities;
 
 
+.bg-fondo {
+  background-image: url('/Fondo1.jpg');
+}
