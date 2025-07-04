@@ -169,7 +169,7 @@ function GameBoard() {
                   <img
                     src={getCardImage(card, "teamA")}
                     alt={card}
-                    className="w-45" // Aumenta el tamaño de la carta
+                    className="w-35 h-45 mx-auto rounded-lg shadow-lg border-2 border-red-300 hover:scale-110 hover:shadow-red-400 transition"
                   />
                   <p className="text-xs text-gray-500">{cardLabels[card]}</p>
                   <p className="text-sm font-medium mt-1">{getPlayerName(card, "teamA")}</p>
@@ -179,9 +179,9 @@ function GameBoard() {
           </div>
 
           {/* Log del partido */}
-          <div className="bg-gray-50 rounded-xl shadow-inner p-4 overflow-y-auto max-h-[520px] border border-gray-200">
+          <div className="bg-white/80 rounded-xl shadow-inner p-4 overflow-y-auto max-h-[520px] border border-gray-200 backdrop-blur-sm scrollbar-thin scrollbar-thumb-green-400">
             <h3 className="text-lg font-bold text-gray-700 mb-3 text-center">
-              📋 Log del Partido
+              📋 Narración del partido
             </h3>
             <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
               {state.log.slice().reverse().map((entry, index) => (
@@ -206,7 +206,7 @@ function GameBoard() {
                   <img
                     src={getCardImage(card, "teamB")}
                     alt={card}
-                    className="w-45" // Aumenta el tamaño de la carta
+                    className="w-35 h-45 mx-auto rounded-lg shadow-lg border-2 border-blue-300 hover:scale-110 hover:shadow-blue-400 transition"
                   />
                   <p className="text-xs text-gray-500">{cardLabels[card]}</p>
                   <p className="text-sm font-medium mt-1">{getPlayerName(card, "teamB")}</p>
