@@ -35,7 +35,7 @@ function GameBoard() {
             break;
           case "PASA":
             const nextPlayerName =
-              players[state.selectedTeams[rule.otherTeam ? getOppositeTeam(team) : team]]?.[rule.next] ?? "Jugador desconocido";
+              players[state.selectedTeams[team]]?.[rule.next] ?? "Jugador desconocido";
             message += `Pasa el balón a ${nextPlayerName}.`;
             break;
           case "PIERDE_TURNO":
@@ -92,32 +92,30 @@ function GameBoard() {
     return players[teamName]?.[card] ?? "Jugador desconocido";
   }
 
-  function getOppositeTeam(team) {
-    return team === "teamA" ? "teamB" : "teamA";
-  }
-
   const activePlayer =
     state.currentPlayer &&
     players[state.selectedTeams[state.currentPlayer.team]]?.[state.currentPlayer.role];
 
   return (
-    <div className="max-w-6xl mx-auto mt-8 px-4">
-      {/* Top Section: Shields + Score */}
-      <div className="flex justify-between items-center bg-white shadow-md rounded-xl px-6 py-4 mb-8">
+    <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
+      {/* 🔢 Marcador */}
+      <div className="flex justify-between items-center bg-green-300 rounded-2xl shadow-lg p-6">
         <div className="flex flex-col items-center">
           <img
             src={`/shields/Escudo_${state.selectedTeams.teamA}.png`}
             alt={state.selectedTeams.teamA}
             className="w-20 h-20 object-contain"
           />
-          <p className="mt-2 font-semibold">{state.selectedTeams.teamA}</p>
+          <p className="mt-2 font-semibold text-green-700">
+            {state.selectedTeams.teamA}
+          </p>
         </div>
 
         <div className="text-center">
-          <p className="text-4xl font-bold text-green-600">
+          <p className="text-5xl font-extrabold text-green-800">
             {state.score.teamA} - {state.score.teamB}
           </p>
-          <p className="text-sm text-gray-600 mt-1">Marcador</p>
+          <p className="text-sm mt-1 text-gray-700 uppercase tracking-wide">Marcador</p>
         </div>
 
         <div className="flex flex-col items-center">
@@ -126,13 +124,15 @@ function GameBoard() {
             alt={state.selectedTeams.teamB}
             className="w-20 h-20 object-contain"
           />
-          <p className="mt-2 font-semibold">{state.selectedTeams.teamB}</p>
+          <p className="mt-2 font-semibold text-blue-700">
+            {state.selectedTeams.teamB}
+          </p>
         </div>
       </div>
 
-      {/* Turno actual + Dado */}
-      <div className="flex items-center justify-center gap-6 mb-6 flex-col">
-        <p className="text-lg font-semibold text-center text-gray-700">
+      {/* 🎲 Dado + Acción */}
+      <div className="flex flex-col items-center text-center space-y-4">
+        <p className="text-lg font-semibold text-gray-700">
           Turno de: {activePlayer ?? "Desconocido"}
         </p>
         <img
@@ -144,72 +144,65 @@ function GameBoard() {
               : "/dice/1.png"
           }
           alt="Dado"
-          className="w-16 h-16 cursor-pointer"
+          className="w-20 h-20 cursor-pointer hover:scale-110 transition-transform"
           onClick={handleRollDice}
         />
-        <p className="text-xl font-bold text-center text-gray-800">
-          {state.message}
-        </p>
+        <p className="text-xl font-bold text-gray-800">{state.message}</p>
       </div>
 
-      {/* Cards Team A */}
-      <div className="bg-white rounded-xl shadow-md p-6 mb-10">
-        <h2 className="text-2xl font-bold mb-4 text-center text-green-700">
-          {state.selectedTeams.teamA}
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
-          {cardsToRender.map((card) => (
-            <div key={card} className="text-center">
-              <img
-                src={getCardImage(card, "teamA")}
-                alt={card}
-                className="w-24"
-              />
-              <p className="text-xs text-gray-500">
-                {cardLabels[card]}
-              </p>
-              <p className="mt-1 text-sm font-medium">
-                {getPlayerName(card, "teamA")}
-              </p>
-            </div>
-          ))}
+      {/* 🧩 Sección inferior: 3 columnas */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Equipo Local */}
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <h2 className="text-xl font-bold text-green-700 text-center mb-4">
+            {state.selectedTeams.teamA}
+          </h2>
+          <div className="grid grid-cols-2 gap-4 justify-items-center">
+            {cardsToRender.map((card) => (
+              <div key={card} className="text-center">
+                <img
+                  src={getCardImage(card, "teamA")}
+                  alt={card}
+                  className="w-45" // Aumenta el tamaño de la carta
+                />
+                <p className="text-xs text-gray-500">{cardLabels[card]}</p>
+                <p className="text-sm font-medium mt-1">{getPlayerName(card, "teamA")}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Cards Team B */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-2xl font-bold mb-4 text-center text-blue-700">
-          {state.selectedTeams.teamB}
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
-          {cardsToRender.map((card) => (
-            <div key={card} className="text-center">
-              <img
-                src={getCardImage(card, "teamB")}
-                alt={card}
-                className="w-24"
-              />
-              <p className="text-xs text-gray-500">
-                {cardLabels[card]}
-              </p>
-              <p className="mt-1 text-sm font-medium">
-                {getPlayerName(card, "teamB")}
-              </p>
-            </div>
-          ))}
+        {/* Log del partido */}
+        <div className="bg-gray-50 rounded-xl shadow-inner p-4 overflow-y-auto max-h-[520px] border border-gray-200">
+          <h3 className="text-lg font-bold text-gray-700 mb-3 text-center">
+            📋 Log del Partido
+          </h3>
+          <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+            {state.log.map((entry, index) => (
+              <li key={index}>{entry}</li>
+            ))}
+          </ul>
         </div>
-      </div>
 
-      {/* Log del partido */}
-      <div className="mt-10 bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-xl font-bold mb-2 text-gray-800">
-          📋 Log del Partido:
-        </h3>
-        <ul className="list-disc pl-5 space-y-1 text-gray-700">
-          {state.log.map((entry, index) => (
-            <li key={index}>{entry}</li>
-          ))}
-        </ul>
+        {/* Equipo Visitante */}
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <h2 className="text-xl font-bold text-blue-700 text-center mb-4">
+            {state.selectedTeams.teamB}
+          </h2>
+          <div className="grid grid-cols-2 gap-4 justify-items-center">
+            {cardsToRender.map((card) => (
+              <div key={card} className="text-center">
+                <img
+                  src={getCardImage(card, "teamB")}
+                  alt={card}
+                  className="w-45" // Aumenta el tamaño de la carta
+                />
+                <p className="text-xs text-gray-500">{cardLabels[card]}</p>
+                <p className="text-sm font-medium mt-1">{getPlayerName(card, "teamB")}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
