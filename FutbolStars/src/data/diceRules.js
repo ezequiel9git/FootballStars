@@ -5,7 +5,7 @@ export const diceRules = {
     1: { action: "PIERDE_TURNO" },
     2: { action: "PASA", next: cardTypes.CENTROCAMPISTA_ESTRELLA },
     3: { action: "PASA", next: cardTypes.DELANTERO_NORMAL },
-    4: { action: "TIRA_DE_NUEVO" },
+    4: { action: "CORNER" }, // Cambiado a CORNER
     5: { action: "GOL" },
     6: { action: "GOL" },
   },
@@ -14,7 +14,7 @@ export const diceRules = {
     2: { action: "PASA", next: cardTypes.CENTROCAMPISTA_NORMAL },
     3: { action: "PASA", next: cardTypes.CENTROCAMPISTA_ESTRELLA },
     4: { action: "PASA", next: cardTypes.DELANTERO_ESTRELLA },
-    5: { action: "TIRA_DE_NUEVO" },
+    5: { action: "CORNER" }, // Cambiado a CORNER
     6: { action: "GOL" },
   },
   [cardTypes.CENTROCAMPISTA_ESTRELLA]: {
@@ -23,7 +23,7 @@ export const diceRules = {
     3: { action: "PASA", next: cardTypes.CENTROCAMPISTA_NORMAL },
     4: { action: "PASA", next: cardTypes.DELANTERO_NORMAL },
     5: { action: "PASA", next: cardTypes.DELANTERO_ESTRELLA },
-    6: { action: "TIRA_DE_NUEVO" },
+    6: { action: "CORNER" }, // Cambiado a CORNER
   },
   [cardTypes.CENTROCAMPISTA_NORMAL]: {
     1: { action: "PIERDE_TURNO" },

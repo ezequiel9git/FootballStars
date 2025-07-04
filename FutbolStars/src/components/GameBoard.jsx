@@ -146,6 +146,9 @@ function GameBoard() {
         <div className="flex justify-between items-center bg-blue-100 rounded-2xl shadow-lg p-6">
           <p className="text-lg font-semibold text-gray-700">
             Turno de: {activePlayer ?? "Desconocido"}
+            {state.cornerActive && (
+              <span className="ml-2 text-orange-600 font-bold animate-pulse">CÓRNER</span>
+            )}
           </p>
           <img
             src={

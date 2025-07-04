@@ -22,6 +22,8 @@ const initialState = {
   message: "Empieza el partido",
   diceResult: null,
   gameOver: false,
+  cornerActive: false,
+  cornerTeam: null,
 };
 
 function getPlayerName(cardType, teamKey, state) {
@@ -62,7 +64,52 @@ function reducer(state, action) {
       let newScore = { ...state.score };
       let newLog = [...state.log, logEntry];
       let gameOver = false;
+      let cornerActive = state.cornerActive;
+      let cornerTeam = state.cornerTeam;
 
+      // Si estamos en modo córner, procesar el dado como córner
+      if (state.cornerActive) {
+        if ([1, 2, 4].includes(roll)) {
+          message = `Córner para ${getPlayerName(role, team, state)}: Pierde el turno.`;
+          nextPlayer = {
+            team: getOppositeTeam(state.cornerTeam),
+            role: "CENTROCAMPISTA_NORMAL",
+          };
+          cornerActive = false;
+          cornerTeam = null;
+        } else if ([3, 5].includes(roll)) {
+          message = `Córner para ${getPlayerName(role, team, state)}: ¡Se repite el córner!`;
+          // El mismo equipo repite el córner, no cambia el turno ni cornerActive
+        } else if (roll === 6) {
+          newScore[state.cornerTeam] += 1;
+          message = `¡GOOOOL de córner de ${getPlayerName(role, team, state)}!`;
+          if (newScore.teamA + newScore.teamB >= 5) {
+            message += " 🏁 ¡Fin del partido!";
+            gameOver = true;
+          } else {
+            nextPlayer = {
+              team: getOppositeTeam(state.cornerTeam),
+              role: "CENTROCAMPISTA_NORMAL",
+            };
+          }
+          cornerActive = false;
+          cornerTeam = null;
+        }
+        newLog.push(message);
+        return {
+          ...state,
+          message,
+          log: newLog,
+          diceResult: roll,
+          score: newScore,
+          currentPlayer: gameOver ? state.currentPlayer : nextPlayer,
+          gameOver,
+          cornerActive,
+          cornerTeam,
+        };
+      }
+
+      // Si NO estamos en modo córner, procesar normalmente
       if (!rule) {
         message = "Acción indefinida.";
         newLog.push(message);
@@ -78,7 +125,7 @@ function reducer(state, action) {
             } else {
               nextPlayer = {
                 team: opponentTeam,
-                role: "CENTROCAMPISTA_NORMAL", // reinicia en centro
+                role: "CENTROCAMPISTA_NORMAL",
               };
             }
             break;
@@ -94,14 +141,20 @@ function reducer(state, action) {
           case "PIERDE_TURNO":
             nextPlayer = {
               team: opponentTeam,
-              role: "CENTROCAMPISTA_NORMAL", // reinicia en centro
+              role: "CENTROCAMPISTA_NORMAL",
             };
             message = `${playerName} pierde el turno. Balón para ${getPlayerName("CENTROCAMPISTA_NORMAL", opponentTeam, state)}.`;
             break;
 
           case "TIRA_DE_NUEVO":
-            // El jugador mantiene el turno
             message = `${playerName} vuelve a tirar.`;
+            break;
+
+          case "CORNER":
+            message = `¡Córner para ${playerName}! Lanza el dado para el córner.`;
+            cornerActive = true;
+            cornerTeam = team;
+            // El jugador mantiene el turno para tirar el córner
             break;
 
           default:
@@ -118,6 +171,8 @@ function reducer(state, action) {
         score: newScore,
         currentPlayer: gameOver ? state.currentPlayer : nextPlayer,
         gameOver,
+        cornerActive,
+        cornerTeam,
       };
     }
 
