@@ -6,27 +6,35 @@ import { diceRules } from "../data/diceRules";
 import ConfettiBurst from "./ConfettiBurst";
 
 function GameBoard() {
+  // Acceso al estado global del juego y a la función dispatch
   const { state, dispatch } = useContext(GameContext);
+
+  // Estado local para animación del dado y confeti
   const [diceResult, setDiceResult] = useState(null);
   const [rolling, setRolling] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
+  // Maneja la tirada del dado principal
   const handleRollDice = () => {
+    // No permite tirar si no hay jugador activo o el juego terminó
     if (!state.currentPlayer || state.gameOver) return;
 
     setRolling(true);
     setDiceResult(null);
 
+    // Simula la animación del dado con un retardo
     setTimeout(() => {
       const roll = Math.floor(Math.random() * 6) + 1;
       setDiceResult(roll);
       setRolling(false);
 
+      // Obtiene información del jugador actual y la regla asociada al resultado
       const { team, role } = state.currentPlayer;
       const teamName = state.selectedTeams[team];
       const playerName = players[teamName]?.[role] ?? "Jugador desconocido";
       const rule = diceRules?.[role]?.[roll];
 
+      // Construye el mensaje de la jugada
       let message = `⚽ ${playerName} lanza el dado: ${roll}. `;
       let isGoal = false;
       if (!rule) {
@@ -38,6 +46,7 @@ function GameBoard() {
             isGoal = true;
             break;
           case "PASA":
+            // Muestra a quién se pasa el balón
             const nextPlayerName =
               players[state.selectedTeams[team]]?.[rule.next] ?? "Jugador desconocido";
             message += `Pasa el balón a ${nextPlayerName}.`;
@@ -53,12 +62,13 @@ function GameBoard() {
         }
       }
 
-      // Mostrar confeti si es gol
+      // Muestra confeti si es gol
       if (isGoal) {
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 1200);
       }
 
+      // Envía la acción al reducer global
       dispatch({
         type: "PROCESS_DICE_RESULT",
         payload: {
@@ -70,6 +80,7 @@ function GameBoard() {
     }, 1000);
   };
 
+  // Cartas que se muestran para cada equipo
   const cardsToRender = [
     "DELANTERO_NORMAL",
     "DELANTERO_ESTRELLA",
@@ -79,6 +90,7 @@ function GameBoard() {
     "DEFENSA_ESTRELLA",
   ];
 
+  // Devuelve la ruta de la imagen de la carta según el equipo y tipo
   function getCardImage(card, teamKey) {
     const teamName = state.selectedTeams[teamKey];
     if (!teamName) return "";
@@ -97,20 +109,23 @@ function GameBoard() {
     return `/cards/${sanitizedTeamName}_${cardCode}.png`;
   }
 
+  // Devuelve el nombre del jugador según la carta y el equipo
   function getPlayerName(card, teamKey) {
     const teamName = state.selectedTeams[teamKey];
     return players[teamName]?.[card] ?? "Jugador desconocido";
   }
 
+  // Nombre del jugador activo actual
   const activePlayer =
     state.currentPlayer &&
     players[state.selectedTeams[state.currentPlayer.team]]?.[state.currentPlayer.role];
 
   return (
     <div className="bg-futbol bg-cover bg-center min-h-screen">
+      {/* 🎉 Animación de confeti al marcar gol */}
       <ConfettiBurst show={showConfetti} />
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
-        {/* 🔢 Marcador */}
+        {/* 🔢 Marcador de ambos equipos */}
         <div className="flex justify-between items-center bg-blue-100 rounded-2xl shadow-lg p-6">
           <div className="flex flex-col items-center">
             <img
@@ -142,7 +157,7 @@ function GameBoard() {
           </div>
         </div>
 
-        {/* 🎲 Dado + Acción */}
+        {/* 🎲 Dado y mensaje de acción */}
         <div className="flex justify-between items-center bg-blue-100 rounded-2xl shadow-lg p-6">
           <p className="text-lg font-semibold text-gray-700">
             Turno de: {activePlayer ?? "Desconocido"}
@@ -165,7 +180,7 @@ function GameBoard() {
           <p className="text-xl font-bold text-gray-800">{state.message}</p>
         </div>
 
-        {/* 🧩 Sección inferior: 3 columnas */}
+        {/* 🧩 Sección inferior: equipos y narración */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Equipo Local */}
           <div className="bg-white rounded-xl shadow-md p-4">
@@ -192,7 +207,7 @@ function GameBoard() {
             </div>
           </div>
 
-          {/* Log del partido */}
+          {/* Log del partido (narración) */}
           <div className="bg-white/80 rounded-xl shadow-inner p-4 overflow-y-auto max-h-[520px] border border-gray-200 backdrop-blur-sm scrollbar-thin scrollbar-thumb-green-400">
             <h3 className="text-lg font-bold text-gray-700 mb-3 text-center">
               📋 Narración del partido
