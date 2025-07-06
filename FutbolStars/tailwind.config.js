@@ -4,10 +4,15 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    'bg-futbol',
+    'bg-seleccion',
+  ],
   theme: {
     extend: {
       backgroundImage: {
-        'futbol': "url('/Fondo1.jpg')",
+        'futbol': "url('/fondos/Fondo5.png')",
+        'seleccion': "url('/fondos/Fondo3.png')",
       },
     },
   },

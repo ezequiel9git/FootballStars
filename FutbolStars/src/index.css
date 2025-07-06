@@ -3,13 +3,18 @@
 @tailwind utilities;
 
 
-.bg-fondo {
-  background-image: url('/Fondo1.jpg');
-}
 
 @keyframes confetti-fall {
   to {
     transform: translateY(400px) rotate(360deg);
     opacity: 0;
   }
+}
+
+html, body, #root {
+  height: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
 }

@@ -11,11 +11,9 @@ function App() {
     selectedTeams.teamA && selectedTeams.teamB;
 
   return (
-    <div className="min-h-screen bg-cover bg-center bg-fondo">
-      <main className="min-h-screen bg-gradient-to-b from-green-100 to-green-300 py-10">
-        {equiposSeleccionados ? <GameBoard /> : <SelectTeam />}
-      </main>
-    </div>
+    <>
+      {equiposSeleccionados ? <GameBoard /> : <SelectTeam />}
+    </>
   );
 }
 
