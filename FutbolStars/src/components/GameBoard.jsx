@@ -225,16 +225,44 @@ function GameBoard() {
             </div>
           </div>
 
-          {/* Log del partido (narración) */}
-          <div className="bg-white/80 rounded-xl shadow-inner p-4 overflow-y-auto max-h-[520px] border border-gray-200 backdrop-blur-sm scrollbar-thin scrollbar-thumb-green-400">
-            <h3 className="text-lg font-bold text-gray-700 mb-3 text-center">
-              📋 Narración del partido
-            </h3>
-            <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
-              {state.log.slice().reverse().map((entry, index) => (
-                <li key={index}>{entry}</li>
-              ))}
-            </ul>
+          {/* Columna central: carta en posesión y narrativa */}
+          <div className="flex flex-col items-center">
+            {/* Carta del jugador en posesión o córner */}
+            <div className="flex flex-col items-center mb-4 bg-white/90 rounded-xl shadow-md p-3 w-full">
+              {state.cornerActive ? (
+                <img
+                  src="/cards/Corner.png"
+                  alt="Córner"
+                  className="w-24 h-32 mx-auto rounded-lg shadow-lg border-2 border-yellow-400 hover:scale-110 hover:shadow-yellow-400 transition"
+                />
+              ) : (
+                state.currentPlayer && (
+                  <img
+                    src={getCardImage(state.currentPlayer.role, state.currentPlayer.team)}
+                    alt={cardLabels[state.currentPlayer.role]}
+                    className="w-34 h-50 mx-auto rounded-lg shadow-lg border-2 border-green-400 hover:scale-110 hover:shadow-green-400 transition"
+                  />
+                )
+              )}
+              <p className="mt-2 text-base font-semibold text-gray-700">
+                {state.cornerActive
+                  ? "Córner"
+                  : state.currentPlayer
+                  ? getPlayerName(state.currentPlayer.role, state.currentPlayer.team)
+                  : ""}
+              </p>
+            </div>
+            {/* Log del partido (narración) */}
+            <div className="bg-white/80 rounded-xl shadow-inner p-4 overflow-y-auto max-h-[440px] border border-gray-200 backdrop-blur-sm scrollbar-thin scrollbar-thumb-green-400 w-full">
+              <h3 className="text-lg font-bold text-gray-700 mb-3 text-center">
+                📋 Narración del partido
+              </h3>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                {state.log.slice().reverse().map((entry, index) => (
+                  <li key={index}>{entry}</li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* Equipo Visitante */}
