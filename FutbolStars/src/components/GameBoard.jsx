@@ -16,25 +16,23 @@ function GameBoard() {
 
   // Maneja la tirada del dado principal
   const handleRollDice = () => {
-    // No permite tirar si no hay jugador activo o el juego terminó
     if (!state.currentPlayer || state.gameOver) return;
 
     setRolling(true);
     setDiceResult(null);
 
-    // Simula la animación del dado con un retardo
     setTimeout(() => {
       const roll = Math.floor(Math.random() * 6) + 1;
+      // Si hay córner, el dado secundario es null
+      const secondaryRoll = state.cornerActive ? null : Math.floor(Math.random() * 6) + 1;
       setDiceResult(roll);
       setRolling(false);
 
-      // Obtiene información del jugador actual y la regla asociada al resultado
       const { team, role } = state.currentPlayer;
       const teamName = state.selectedTeams[team];
       const playerName = players[teamName]?.[role] ?? "Jugador desconocido";
       const rule = diceRules?.[role]?.[roll];
 
-      // Construye el mensaje de la jugada
       let message = `⚽ ${playerName} lanza el dado: ${roll}. `;
       let isGoal = false;
       if (!rule) {
@@ -46,7 +44,6 @@ function GameBoard() {
             isGoal = true;
             break;
           case "PASA":
-            // Muestra a quién se pasa el balón
             const nextPlayerName =
               players[state.selectedTeams[team]]?.[rule.next] ?? "Jugador desconocido";
             message += `Pasa el balón a ${nextPlayerName}.`;
@@ -62,19 +59,18 @@ function GameBoard() {
         }
       }
 
-      // Muestra confeti si es gol
       if (isGoal) {
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 1200);
       }
 
-      // Envía la acción al reducer global
       dispatch({
         type: "PROCESS_DICE_RESULT",
         payload: {
           roll,
           rule,
           logEntry: message,
+          secondaryRoll, // <-- Añade el dado secundario aquí
         },
       });
     }, 1000);
@@ -115,7 +111,7 @@ function GameBoard() {
     return players[teamName]?.[card] ?? "Jugador desconocido";
   }
 
-  // Nombre del jugador activo actual
+  // Nombre del jugador activo current
   const activePlayer =
     state.currentPlayer &&
     players[state.selectedTeams[state.currentPlayer.team]]?.[state.currentPlayer.role];
@@ -165,18 +161,40 @@ function GameBoard() {
               <span className="ml-2 text-orange-600 font-bold animate-pulse">CÓRNER</span>
             )}
           </p>
-          <img
-            src={
-              rolling
-                ? "/dice/Dado.gif"
-                : diceResult
-                ? `/dice/${diceResult}.png`
-                : "/dice/1.png"
-            }
-            alt="Dado"
-            className="w-20 h-20 cursor-pointer hover:scale-110 transition-transform"
-            onClick={handleRollDice}
-          />
+          <div className="flex items-center space-x-6">
+            {/* Dado principal */}
+            <img
+              src={
+                rolling
+                  ? "/dice/Dado.gif"
+                  : diceResult
+                  ? `/dice/${diceResult}.png`
+                  : "/dice/1.png"
+              }
+              alt="Dado"
+              className="w-20 h-20 cursor-pointer hover:scale-110 transition-transform"
+              onClick={handleRollDice}
+            />
+            {/* Dado secundario */}
+            {!state.cornerActive && (
+              <img
+                src={
+                  rolling
+                    ? "/dice/Dado.gif"
+                    : state.secondaryDiceResult === 1
+                    ? "/dice/BalonFuera.png"
+                    : state.secondaryDiceResult === 6
+                    ? "/dice/falta.png"
+                    : [2, 3, 4, 5].includes(state.secondaryDiceResult)
+                    ? "/dice/BalonJuego.png"
+                    : "/dice/BalonJuego.png"
+                }
+                alt="Dado secundario"
+                className="w-16 h-16"
+                style={{ opacity: 0.85 }}
+              />
+            )}
+          </div>
           <p className="text-xl font-bold text-gray-800">{state.message}</p>
         </div>
 
