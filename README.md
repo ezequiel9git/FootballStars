@@ -1,3 +1,7 @@
+
+<img width="500" height="500" alt="football stars" src="https://github.com/user-attachments/assets/c2efa1c9-3e9b-47ba-8f53-25ee0857c57f" />
+
+
 # ⚽ FootballStars
 
 FootballStars es un juego web de fútbol por turnos donde dos jugadores seleccionan equipos y compiten lanzando dados para simular jugadas, goles, córners y más. El objetivo es sumar goles y vivir la emoción de un partido con reglas simples y dinámicas.
